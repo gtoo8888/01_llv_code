@@ -4,7 +4,7 @@ from pathlib import Path
 from converter import convert_to_simplified
 
 
-MODEL_PATH = "model/small"
+MODEL_PATH = "whisper_models/small"
 MODEL = None
 
 
