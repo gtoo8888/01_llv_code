@@ -15,3 +15,7 @@ douyin-downloader-main
 *.spec
 build/
 dist/
+
+
+whisper_models
+voice_output
