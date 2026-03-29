@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>论文库可视化 - 概览</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/overview.css">
+</head>
+<body>
+    <div class="container">
+        <h1>📁 论文库可视化</h1>
+
+        <!-- 顶部导航 -->
+        <div class="nav-bar">
+            <a href="/" class="nav-link active">📊 概览</a>
+            <a href="/tree.html" class="nav-link">🌲 目录树</a>
+            <a href="/sunburst.html" class="nav-link">☀️ 旭日图</a>
+            <a href="/wordcloud.html" class="nav-link">☁️ 词云</a>
+        </div>
+
+        <!-- ==================== 概览页面 ==================== -->
+        <div class="input-bar">
+            <input
+                type="text"
+                id="path_input"
+                placeholder="输入目录路径"
+                value="/data_sdb/openclaw/01_data/04_papers/raw"
+            >
+            <label class="checkbox-label">
+                <input type="checkbox" id="include_files">
+                显示文件
+            </label>
+            <button id="load_btn">加载</button>
+        </div>
+
+        <div class="error-msg" id="error_msg" style="display:none;"></div>
+
+        <!-- 统计卡片 -->
+        <div class="overview" id="overview" style="display:none;">
+            <div class="stat-card">
+                <div class="stat-value" id="stat_dirs">-</div>
+                <div class="stat-label">目录数</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="stat_files">-</div>
+                <div class="stat-label">文件数</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="stat_top_level">-</div>
+                <div class="stat-label">一级学科</div>
+            </div>
+        </div>
+
+        <!-- 学科分布表格 -->
+        <div class="overview" id="subject_overview" style="display:none;">
+            <h2 class="section-title">📊 学科分布</h2>
+            <table class="subject-table">
+                <thead>
+                    <tr>
+                        <th style="width:40px;"></th>
+                        <th>学科</th>
+                        <th style="width:100px; text-align:right;">文章数</th>
+                    </tr>
+                </thead>
+                <tbody id="subject_table_body"></tbody>
+            </table>
+            <div class="reference-link">
+                📎 参考链接：<a href="https://www.cdgdc.edu.cn/dslxkpgjggb/index.htm" target="_blank">学位学科和研究生教育发展简报</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/api.js"></script>
+    <script src="/static/js/overview.js"></script>
+</body>
+</html>

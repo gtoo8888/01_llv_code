@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>论文库可视化 - 目录树</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/tree.css">
+</head>
+<body>
+    <div class="container">
+        <h1>📁 论文库可视化</h1>
+
+        <!-- 顶部导航 -->
+        <div class="nav-bar">
+            <a href="/" class="nav-link">📊 概览</a>
+            <a href="/tree.html" class="nav-link active">🌲 目录树</a>
+            <a href="/sunburst.html" class="nav-link">☀️ 旭日图</a>
+            <a href="/wordcloud.html" class="nav-link">☁️ 词云</a>
+        </div>
+
+        <!-- ==================== 目录树页面 ==================== -->
+        <div class="input-bar">
+            <input type="text" id="tree_path_input" placeholder="输入目录路径" value="">
+            <label class="checkbox-label">
+                <input type="checkbox" id="tree_include_files">
+                显示文件
+            </label>
+            <button id="tree_load_btn">加载</button>
+        </div>
+
+        <div class="input-bar tree-search-bar" id="tree_search_bar" style="display:none;">
+            <input type="text" id="tree_search_input" placeholder="输入关键词搜索">
+            <button id="tree_search_btn">搜索</button>
+            <button id="tree_search_clear_btn" class="btn-secondary">清除</button>
+        </div>
+
+        <div class="stats-bar" id="tree_stats_bar" style="display:none;">
+            <span id="tree_stats_text"></span>
+        </div>
+
+        <div class="error-msg" id="tree_error_msg" style="display:none;"></div>
+
+        <div class="tree-wrapper" id="tree_wrapper">
+            <div class="tree-placeholder">点击「加载」按钮加载目录结构</div>
+        </div>
+    </div>
+
+    <script src="/static/js/api.js"></script>
+    <script src="/static/js/tree.js"></script>
+</body>
+</html>

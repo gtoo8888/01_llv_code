@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>论文库可视化 - 旭日图</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/sunburst.css">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>📁 论文库可视化</h1>
+
+        <!-- 顶部导航 -->
+        <div class="nav-bar">
+            <a href="/" class="nav-link">📊 概览</a>
+            <a href="/tree.html" class="nav-link">🌲 目录树</a>
+            <a href="/sunburst.html" class="nav-link active">☀️ 旭日图</a>
+            <a href="/wordcloud.html" class="nav-link">☁️ 词云</a>
+        </div>
+
+        <!-- 页面内容 -->
+        <div class="input-bar">
+            <input
+                type="text"
+                id="path_input"
+                placeholder="输入目录路径"
+                value="/data_sdb/openclaw/01_data/04_papers/raw"
+            >
+            <button id="load_btn">加载</button>
+        </div>
+
+        <div class="error-msg" id="error_msg" style="display:none;"></div>
+
+        <!-- 统计栏 -->
+        <div class="stats-bar" id="stats_bar" style="display:none;">
+            <span id="stats_text"></span>
+        </div>
+
+        <!-- 图表容器 -->
+        <div id="chart" class="chart-container" style="position:relative;"></div>
+    </div>
+
+    <script src="/static/js/api.js"></script>
+    <script src="/static/js/sunburst.js"></script>
+</body>
+</html>
