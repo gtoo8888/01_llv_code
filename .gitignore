@@ -11,3 +11,7 @@ douyin-downloader-main
 *.log
 *.pid
 *.db
+
+*.spec
+build/
+dist/

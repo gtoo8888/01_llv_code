@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linux 系统监控仪表盘</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🖥️ Linux 系统监控</h1>
+        </header>
+
+        <main class="dashboard">
+            <!-- CPU 卡片 -->
+            <div class="card card-large">
+                <div class="card-header">
+                    <h2>⚡ CPU 使用率</h2>
+                </div>
+                <div class="card-body">
+                    <div class="cpu-chart-container-large">
+                        <canvas id="cpu-chart"></canvas>
+                    </div>
+                    <div class="cpu-cores-display">
+                        <div id="cpu-cores-container"></div>
+                    </div>
+                    <div class="cpu-summary-large">
+                        <div class="cpu-current">
+                            <span class="cpu-percent-value-large" id="cpu-percent">0%</span>
+                            <div class="cpu-info-large">
+                                <span class="cpu-load">负载: <span id="cpu-load">-</span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 内存卡片 -->
+            <div class="card card-large">
+                <div class="card-header">
+                    <h2>🧠 内存使用</h2>
+                </div>
+                <div class="card-body">
+                    <div class="memory-chart-container-large">
+                        <canvas id="memory-chart"></canvas>
+                    </div>
+                    <div class="memory-summary-large">
+                        <div class="memory-current">
+                            <span class="memory-percent-value-large" id="memory-percent">0%</span>
+                            <div class="memory-gb-info-large">
+                                <span class="memory-used" id="memory-used">-</span>
+                                <span class="memory-separator">/</span>
+                                <span class="memory-total" id="memory-total">-</span>
+                                <span class="memory-unit">GB</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 磁盘卡片 -->
+            <div class="card card-wide">
+                <div class="card-header">
+                    <h2>💾 磁盘使用</h2>
+                </div>
+                <div class="card-body">
+                    <!-- 主要磁盘 -->
+                    <div id="disk-primary-container">
+                    </div>
+                    <!-- 其他磁盘 - 可折叠 -->
+                    <details class="disk-others">
+                        <summary>其他磁盘</summary>
+                        <div id="disk-others-container">
+                        </div>
+                    </details>
+                </div>
+            </div>
+
+            <!-- 网络卡片 -->
+            <div class="card card-wide">
+                <div class="card-header">
+                    <h2>🌐 网络流量</h2>
+                </div>
+                <div class="card-body">
+                    <div id="network-container">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 系统信息卡片 -->
+            <div class="card card-wide">
+                <div class="card-header">
+                    <h2>📋 系统信息</h2>
+                </div>
+                <div class="card-body">
+                    <div class="sys-info">
+                        <div class="sys-item">
+                            <span class="label">主机名:</span>
+                            <span class="value" id="hostname">-</span>
+                        </div>
+                        <div class="sys-item">
+                            <span class="label">操作系统:</span>
+                            <span class="value" id="os">-</span>
+                        </div>
+                        <div class="sys-item">
+                            <span class="label">内核版本:</span>
+                            <span class="value" id="kernel">-</span>
+                        </div>
+                        <div class="sys-item">
+                            <span class="label">系统架构:</span>
+                            <span class="value" id="arch">-</span>
+                        </div>
+                        <div class="sys-item">
+                            <span class="label">CPU 型号:</span>
+                            <span class="value" id="cpu_model">-</span>
+                        </div>
+                        <div class="sys-item">
+                            <span class="label">CPU 核心:</span>
+                            <span class="value" id="cpu_cores">-</span>
+                        </div>
+                        <div class="sys-item">
+                            <span class="label">系统语言:</span>
+                            <span class="value" id="locale">-</span>
+                        </div>
+                        <div class="sys-item">
+                            <span class="label">时区:</span>
+                            <span class="value" id="timezone">-</span>
+                        </div>
+                        <div class="sys-item">
+                            <span class="label">运行时间:</span>
+                            <span id="uptime">-</span>
+                        </div>
+                        <div class="sys-item">
+                            <span class="label">最后更新:</span>
+                            <span id="last-update">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>
+                数据每 <span id="refresh-time-display">3</span> 秒自动刷新
+                <select id="refresh-interval">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3" selected>3</option>
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                </select> 秒
+            </p>
+        </footer>
+    </div>
+
+    <script src="/static/js/constants.js"></script>
+    <script src="/static/js/api.js"></script>
+    <script src="/static/js/cpu.js"></script>
+    <script src="/static/js/memory.js"></script>
+    <script src="/static/js/charts.js"></script>
+    <script src="/static/js/disk.js"></script>
+    <script src="/static/js/network.js"></script>
+    <script src="/static/js/events.js"></script>
+    <script src="/static/js/main.js"></script>
+</body>
+</html>
