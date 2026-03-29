@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>收益率计算器</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/calculator.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🧮 收益率计算器</h1>
+        
+        <!-- 页面导航 -->
+        <div class="page-nav">
+            <a href="/" class="nav-link">🏠 首页</a>
+            <a href="/wealth.html" class="nav-link">📊 理财收益计算器</a>
+            <a href="/calculator.html" class="nav-link active">🧮 收益率计算器</a>
+            <a href="/chart.html" class="nav-link">📈 收益走势</a>
+            <a href="/indices.html" class="nav-link">📊 指数行情</a>
+        </div>
+        
+        <!-- 基本收益率计算器 -->
+        <div class="card calculator-card">
+            <h2>📈 基本收益率</h2>
+            <p class="desc">计算投资收益占本金的百分比</p>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>本金（元）</label>
+                    <input type="number" id="basic_principal" placeholder="例如: 10000">
+                </div>
+                <div class="form-group">
+                    <label>收益（元）</label>
+                    <input type="number" id="basic_income" placeholder="例如: 500">
+                </div>
+            </div>
+            <button class="btn-calculate" onclick="calculateBasic()">计算收益率</button>
+            <div class="result" id="basic_result">
+                <div class="result-item">
+                    <div class="label">收益率</div>
+                    <div class="value" id="basic_rate">-</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 年化收益率计算器 -->
+        <div class="card calculator-card">
+            <h2>📅 年化收益率</h2>
+            <p class="desc">将任意期限的收益换算为年化收益率</p>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>本金（元）</label>
+                    <input type="number" id="annual_principal" placeholder="例如: 10000">
+                </div>
+                <div class="form-group">
+                    <label>收益（元）</label>
+                    <input type="number" id="annual_income" placeholder="例如: 500">
+                </div>
+                <div class="form-group">
+                    <label>持有天数</label>
+                    <input type="number" id="annual_days" placeholder="例如: 30">
+                </div>
+            </div>
+            <button class="btn-calculate" onclick="calculateAnnual()">计算年化收益率</button>
+            <div class="result" id="annual_result">
+                <div class="result-item">
+                    <div class="label">年化收益率</div>
+                    <div class="value" id="annual_rate">-</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 复利计算器 -->
+        <div class="card calculator-card">
+            <h2>💎 复利计算器</h2>
+            <p class="desc">计算复利增长后的终值</p>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>本金（元）</label>
+                    <input type="number" id="compound_principal" placeholder="例如: 10000">
+                </div>
+                <div class="form-group">
+                    <label>年利率（%）</label>
+                    <input type="number" id="compound_rate" placeholder="例如: 5" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label>投资年限</label>
+                    <input type="number" id="compound_years" placeholder="例如: 10">
+                </div>
+            </div>
+            <button class="btn-calculate" onclick="calculateCompound()">计算复利终值</button>
+            <div class="result" id="compound_result">
+                <div class="result-grid">
+                    <div class="result-item">
+                        <div class="label">复利终值</div>
+                        <div class="value" id="compound_final">-</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="label">总收益</div>
+                        <div class="value" id="compound_total">-</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 定投计算器 -->
+        <div class="card calculator-card">
+            <h2>📥 定投计算器</h2>
+            <p class="desc">计算定期定额投资的最终收益</p>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>每月定投（元）</label>
+                    <input type="number" id="dca_amount" placeholder="例如: 1000">
+                </div>
+                <div class="form-group">
+                    <label>年化收益率（%）</label>
+                    <input type="number" id="dca_rate" placeholder="例如: 8" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label>定投期限（年）</label>
+                    <input type="number" id="dca_years" placeholder="例如: 10">
+                </div>
+            </div>
+            <button class="btn-calculate" onclick="calculateDCA()">计算定投收益</button>
+            <div class="result" id="dca_result">
+                <div class="result-grid">
+                    <div class="result-item">
+                        <div class="label">定投总本金</div>
+                        <div class="value" id="dca_principal">-</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="label">定投终值</div>
+                        <div class="value" id="dca_final">-</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="label">总收益</div>
+                        <div class="value" id="dca_income">-</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="label">收益率</div>
+                        <div class="value" id="dca_rate_result">-</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="/static/js/calculator.js"></script>
+</body>
+</html>

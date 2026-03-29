@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>理财收益计算器</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>💰 理财收益计算器</h1>
+        
+        <!-- 页面导航 -->
+        <div class="page-nav">
+            <a href="/" class="nav-link">🏠 首页</a>
+            <a href="/wealth.html" class="nav-link active">📊 理财收益计算器</a>
+            <a href="/calculator.html" class="nav-link">🧮 收益率计算器</a>
+            <a href="/chart.html" class="nav-link">📈 收益走势</a>
+            <a href="/indices.html" class="nav-link">📊 指数行情</a>
+        </div>
+        
+        <!-- 输入表单 -->
+        <div class="card">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>持仓（本金）</label>
+                    <input type="number" id="principal" step="0.01" placeholder="例如: 5000">
+                </div>
+                <div class="form-group">
+                    <label>开始日期</label>
+                    <input type="date" id="start_date" value="2026-01-27">
+                </div>
+                <div class="form-group">
+                    <label>结束日期</label>
+                    <input type="date" id="end_date" value="2026-02-09">
+                </div>
+                <div class="form-group">
+                    <label>收益开始</label>
+                    <input type="number" id="income_start" step="0.01" placeholder="例如: 0">
+                </div>
+                <div class="form-group">
+                    <label>收益结束</label>
+                    <input type="number" id="income_end" step="0.01" placeholder="例如: 9.05">
+                </div>
+            </div>
+            <button class="btn-calculate" id="calculate_btn">确认计算</button>
+            
+            <!-- 计算结果展示 -->
+            <div class="result" id="result">
+                <div class="result-grid">
+                    <div class="result-item">
+                        <div class="label">天数</div>
+                        <div class="value" id="res_days">-</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="label">总收益</div>
+                        <div class="value" id="res_total">-</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="label">每天收益</div>
+                        <div class="value" id="res_daily">-</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="label">每天万份收益</div>
+                        <div class="value" id="res_daily_10k">-</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="label">年化收益</div>
+                        <div class="value" id="res_annual">-</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 历史记录 -->
+        <div class="card">
+            <h2>📋 历史记录</h2>
+            <table id="records_table">
+                <thead>
+                    <tr>
+                        <th>持仓</th>
+                        <th>开始</th>
+                        <th>结束</th>
+                        <th>天数</th>
+                        <th>总收益</th>
+                        <th>每天收益</th>
+                        <th>万份收益</th>
+                        <th>年化收益</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="records_body">
+                </tbody>
+            </table>
+            <div class="empty" id="empty_tip">暂无记录</div>
+        </div>
+    </div>
+    
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

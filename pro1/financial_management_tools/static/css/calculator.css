@@ -1,0 +1,65 @@
+/* 页面导航 */
+.page-nav {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.nav-link {
+    padding: 10px 20px;
+    background: rgba(255,255,255,0.2);
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+    background: rgba(255,255,255,0.3);
+    transform: translateY(-2px);
+}
+
+.nav-link.active {
+    background: white;
+    color: #667eea;
+}
+
+/* 计算器卡片 */
+.calculator-card {
+    animation: fadeInUp 0.6s ease;
+}
+
+.calculator-card:nth-child(2) { animation-delay: 0.05s; }
+.calculator-card:nth-child(3) { animation-delay: 0.1s; }
+.calculator-card:nth-child(4) { animation-delay: 0.15s; }
+.calculator-card:nth-child(5) { animation-delay: 0.2s; }
+
+.calculator-card h2 {
+    margin-bottom: 4px;
+}
+
+.calculator-card .desc {
+    color: #999;
+    font-size: 14px;
+    margin-bottom: 16px;
+}
+
+.calculator-card .form-grid {
+    margin-bottom: 16px;
+}
+
+/* 响应式优化 */
+@media (max-width: 600px) {
+    .page-nav {
+        flex-direction: column;
+    }
+    
+    .nav-link {
+        text-align: center;
+    }
+    
+    .result-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}

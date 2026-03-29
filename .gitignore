@@ -1,0 +1,13 @@
+*.csv
+*.xlsx
+stock_history
+.idea
+__pycache__
+*.whl
+douyin-downloader-main
+*.m4a
+*.mp3
+
+*.log
+*.pid
+*.db

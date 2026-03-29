@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>指数行情 - 理财收益计算器</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/indices.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/themes/material_blue.css">
+</head>
+<body>
+    <div class="container">
+        <h1>📈 指数行情</h1>
+        
+        <div class="page-nav">
+            <a href="/" class="nav-link">🏠 首页</a>
+            <a href="/wealth.html" class="nav-link">📊 理财收益计算器</a>
+            <a href="/calculator.html" class="nav-link">🧮 收益率计算器</a>
+            <a href="/chart.html" class="nav-link">📈 收益走势</a>
+            <a href="/indices.html" class="nav-link active">📊 指数行情</a>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h2>主要指数涨跌幅</h2>
+                <div class="header-actions">
+                    <div class="date-picker-wrapper">
+                        <label for="date-picker">📅 选择日期:</label>
+                        <input type="text" id="date-picker" class="date-picker" placeholder="选择日期">
+                        <span id="date-hint" class="date-hint"></span>
+                    </div>
+                    <button id="refresh-btn" class="btn btn-primary">🔄 刷新数据</button>
+                </div>
+            </div>
+            
+            <div class="table-container">
+                <table id="indices-table" class="data-table">
+                    <thead>
+                        <tr>
+                            <th data-sort="order" class="sortable">序号</th>
+                            <th data-sort="code" class="sortable">代码</th>
+                            <th data-sort="name" class="sortable">指数名称</th>
+                            <th data-sort="current" class="sortable numeric">当前点位</th>
+                            <th data-sort="change" class="sortable numeric">涨跌幅(%)</th>
+                            <th data-sort="changeAmt" class="sortable numeric">涨跌额</th>
+                            <th data-sort="volume" class="sortable numeric">成交额(亿)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="indices-tbody">
+                        <!-- 数据将通过 JS 动态生成 -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="table-footer">
+                <!-- 进度条 -->
+                <div id="progress-container" class="progress-container" style="display: none;">
+                    <div class="progress-bar">
+                        <div id="progress-fill" class="progress-fill" style="width: 0%;"></div>
+                    </div>
+                    <span id="progress-text" class="progress-text">0%</span>
+                </div>
+                <div class="footer-info">
+                    <span class="update-time">数据更新时间: <span id="update-time">--</span></span>
+                    <span class="data-source">数据来源: 模拟数据</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/l10n/zh.js"></script>
+    <script src="/static/js/indices.js"></script>
+</body>
+</html>

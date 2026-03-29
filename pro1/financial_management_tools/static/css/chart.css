@@ -1,0 +1,10 @@
+#chart-container {
+    width: 100%;
+    height: 500px;
+}
+
+.info-text {
+    color: #666;
+    font-size: 14px;
+    margin-top: 10px;
+}

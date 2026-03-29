@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>收益走势图表</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/chart.css">
+</head>
+<body>
+    <div class="container">
+        <h1>📈 收益走势图表</h1>
+        
+        <!-- 页面导航 -->
+        <div class="page-nav">
+            <a href="/" class="nav-link">🏠 首页</a>
+            <a href="/wealth.html" class="nav-link">📊 理财收益计算器</a>
+            <a href="/calculator.html" class="nav-link">🧮 收益率计算器</a>
+            <a href="/chart.html" class="nav-link active">📈 收益走势</a>
+            <a href="/indices.html" class="nav-link">📊 指数行情</a>
+        </div>
+        
+        <div class="card">
+            <div id="chart-container"></div>
+            <p class="info-text">* 数据为随机生成的测试数据，展示总收益随持有天数的变化趋势</p>
+        </div>
+    </div>
+    
+    <!-- 引入 ECharts 和 chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="/static/js/chart.js"></script>
+</body>
+</html>
