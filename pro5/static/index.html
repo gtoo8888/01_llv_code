@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>对话分析</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="stylesheet" href="/static/css/index.css">
+</head>
+<body>
+
+<div class="layout">
+  <!-- 左侧：会话列表 -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <span>📊 对话历史</span>
+      <button class="btn btn-ghost" style="padding:4px 10px;font-size:12px" onclick="loadSessions()">🔄</button>
+    </div>
+    <div class="sidebar-body">
+      <div id="conv-list">
+        <div class="loading" style="padding:20px">加载中</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- 右侧：对话内容 -->
+  <main class="main">
+    <div id="main-header" class="main-header" style="display:none">
+      <span>会话: <strong id="h-key"></strong></span>
+      <span>渠道: <strong id="h-channel"></strong></span>
+      <span>消息: <strong id="h-count"></strong></span>
+    </div>
+    <div id="main-body" class="main-body">
+      <div class="empty-main">← 点击左侧会话查看详情</div>
+    </div>
+  </main>
+</div>
+
+<script src="/static/js/api.js"></script>
+<script src="/static/js/index.js"></script>
+</body>
+</html>
