@@ -6,13 +6,18 @@ AI 生成代码项目仓库。由 OpenClaw 共同维护。
 
 ## 项目一览
 
-| 项目 | 描述 | 端口 |
-|------|------|------|
-| **pro1** | 财务管理工具 — FastAPI 后端 + 前端静态页面，支持 A 股指数、计算器、图表 | 8081 |
-| **pro2** | 论文可视化 — 按 GB/T 13745-2009 中国学科分类生成论文可视化图谱 | 8001 |
-| **pro3** | Linux 系统监控面板 — 实时 CPU / 内存监控，带 Web 界面 | 8000 |
-| **pro4** | Whisper 批量语音转文字 — 批量将音频转为文本（OpenAI Whisper） | — |
-| **drafts** | 零散代码片段与实验代码 | — |
+| 项目 | 类型 | 描述 | 端口 | 环境 |
+|------|------|------|------|------|
+| **pro1** | 🌐 Web | 财务管理工具 | 8081 | base |
+| **pro2** | 🌐 Web | 论文可视化 | 8001 | `paper_dashboard` |
+| **pro3** | 🌐 Web | 系统监控 | 8000 | `linux_dashboard` |
+| **pro4** | 📦 脚本 | 语音转文字 | — | `whisper_dashboard` |
+| **pro5** | 🌐 Web | 对话知识管家 | 8002 | `llm_chat_dashboard` |
+| **pro6** | 📦 脚本 | 电影票房分析 | — | base |
+| **pro7** | 📦 脚本 | 字幕提取 | — | base |
+| **pro8** | 📦 脚本 | 代码统计 | — | base |
+| **pro9** | 📦 脚本 | RPC 工具集 | — | `openclaw_tool` |
+| **drafts** | 📦 杂项 | 零散片段 | — | — |
 
 ---
 
@@ -50,40 +55,69 @@ AI 生成代码项目仓库。由 OpenClaw 共同维护。
 ├── pro1/                   # 财务管理系统
 ├── pro2/                   # 论文可视化
 ├── pro3/                   # Linux 系统监控
-├── pro4/                   # Whisper 批量转录
+├── pro4/                   # 语音转文字
+├── pro5/                   # 对话知识管家
+├── pro6/                   # 电影票房分析
+├── pro7/                   # 字幕提取
+├── pro8/                   # 代码统计
+├── pro9/                   # OpenClaw RPC 工具集
 └── drafts/                 # 实验性代码片段
 ```
 
 ---
 
-## 各项目详情
-
-### pro1 — 财务管理系统
+## 各项目启动
 
 ```bash
-cd /data_sdb/openclaw/02_llv_generated/01_llv_code/pro1/financial_management_tools
+# pro1 — 财务管理工具
+cd pro1/financial_management_tools
+conda activate base
 ./auto_run.sh run
-```
+# 访问: http://localhost:8081
 
-访问 http://localhost:8081
-
-### pro2 — 论文可视化
-
-```bash
-cd /data_sdb/openclaw/02_llv_generated/01_llv_code/pro2
+# pro2 — 论文可视化
+cd pro2
+conda activate paper_dashboard
 ./auto_run.sh run
-```
+# 访问: http://localhost:8001
 
-访问 http://localhost:8001
-
-### pro3 — Linux 系统监控
-
-```bash
-cd /data_sdb/openclaw/02_llv_generated/01_llv_code/pro3
+# pro3 — 系统监控
+cd pro3
+conda activate linux_dashboard
 ./auto_run.sh run
-```
+# 访问: http://localhost:8000
 
-访问 http://localhost:8000
+# pro4 — 语音转文字
+cd pro4
+conda activate whisper_dashboard
+python transcribe.py <音频文件>
+
+# pro5 — 对话知识管家
+cd pro5
+conda activate llm_chat_dashboard
+./auto_run.sh run
+# 访问: http://localhost:8002
+
+# pro6 — 电影票房分析
+cd pro6
+conda activate base
+python taopiaopiao_to_csv.py
+
+# pro7 — 字幕提取
+cd pro7
+conda activate base
+python extract_english_ass.py
+
+# pro8 — 代码统计
+cd pro8
+conda activate base
+python count_word.py <目录路径>
+
+# pro9 — RPC 工具集
+cd pro9
+conda activate openclaw_tool
+python session_stats.py --token <token>
+```
 
 ---
 
