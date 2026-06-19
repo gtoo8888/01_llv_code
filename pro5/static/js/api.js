@@ -50,3 +50,29 @@ async function deepseekGetDates(year, month) {
 async function deepseekGetStats() {
   return apiGet('/deepseek/stats');
 }
+
+async function deepseekGetAllSessions() {
+  return apiGet('/deepseek/sessions/all');
+}
+
+async function deepseekGetSessionStatus(sessionId) {
+  return apiGet(`/deepseek/sessions/${encodeURIComponent(sessionId)}/status`);
+}
+
+async function deepseekUpdateStatus(sessionId, status, notes) {
+  const res = await fetch(`${BASE}/deepseek/sessions/${encodeURIComponent(sessionId)}/status`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status, notes }),
+  });
+  if (!res.ok) throw new Error(`API error: ${res.status}`);
+  return res.json();
+}
+
+async function deepseekPermanentDelete(sessionId) {
+  const res = await fetch(`${BASE}/deepseek/sessions/${encodeURIComponent(sessionId)}/permanent`, {
+    method: 'DELETE',
+  });
+  if (!res.ok) throw new Error(`API error: ${res.status}`);
+  return res.json();
+}

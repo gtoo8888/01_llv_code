@@ -4,11 +4,11 @@ API 路由
 import json
 import re
 from pathlib import Path
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Body, Query
 from fastapi.responses import JSONResponse
 
 from src.config import DB_PATH, STATIC_DIR, BASE_DIR
-from src.database import get_conn
+from src.database import get_conn, get_or_init_status, upsert_status, get_status_for_sessions, get_status_counts, permanent_delete_status
 from src.parser import strip_user_metadata
 
 router = APIRouter()
@@ -154,8 +154,17 @@ def deepseek_structure():
 
 
 @router.get("/api/deepseek/sessions")
-def deepseek_sessions(year: str = Query(...), month: str = Query(...)):
-    """获取指定年月的会话列表，从 Markdown 文件头部解析元数据"""
+def deepseek_sessions(year: str = Query(...), month: str = Query(...),
+                      status: str = Query(None)):
+    """获取指定年月的会话列表，从 Markdown 文件头部解析元数据
+
+    status 参数：
+      - raw       → 仅待处理
+      - archived  → 仅已归档
+      - deleted   → 仅回收站
+      - all       → 全部（含 deleted_permanent）
+      - 不传       → 默认过滤 deleted 和 deleted_permanent
+    """
     month_dir = DEEPSEEK_ARCHIVE / year / month
     if not month_dir.exists():
         return {"sessions": [], "year": year, "month": month}
@@ -201,7 +210,87 @@ def deepseek_sessions(year: str = Query(...), month: str = Query(...)):
             "model": model,
         })
 
+    # 批量查询状态
+    conn = get_conn()
+    ids = [s["id"] for s in sessions if s["id"]]
+    status_map = get_status_for_sessions(conn, ids)
+    # 懒初始化未入库的会话
+    for s in sessions:
+        if s["id"] and s["id"] not in status_map:
+            st = get_or_init_status(conn, s["id"])
+            if st:
+                status_map[s["id"]] = st
+        s["status"] = (status_map.get(s["id"], {}) or {}).get("status", "raw")
+    conn.close()
+
+    # 按 status 筛选
+    hidden_statuses = {"deleted", "deleted_permanent"}
+    if status == "all":
+        pass  # 全部显示
+    elif status:
+        sessions = [s for s in sessions if s.get("status") == status]
+    else:
+        sessions = [s for s in sessions if s.get("status") not in hidden_statuses]
+
     return {"sessions": sessions, "year": year, "month": month}
+
+
+# ═══════════════════════════════════════════════
+# DeepSeek 全量会话 API（必须在 {session_id} 前注册）
+# ═══════════════════════════════════════════════
+
+
+@router.get("/api/deepseek/sessions/all")
+def deepseek_sessions_all():
+    """返回所有 DeepSeek 对话（含状态），用于对话管理视图"""
+    all_sessions = []
+    seen_ids = set()
+
+    for year_dir in sorted(DEEPSEEK_ARCHIVE.iterdir(), reverse=True):
+        if not year_dir.is_dir() or not year_dir.name.isdigit():
+            continue
+        year = year_dir.name
+        for month_dir in sorted(year_dir.iterdir(), reverse=True):
+            if not month_dir.is_dir():
+                continue
+            data_file = month_dir / "_data.json"
+            if not data_file.exists():
+                continue
+            try:
+                with open(data_file, "r", encoding="utf-8") as f:
+                    sessions = json.load(f)
+            except (json.JSONDecodeError, IOError):
+                continue
+
+            for s in sessions:
+                sid = s.get("id", "")
+                if not sid or sid in seen_ids:
+                    continue
+                seen_ids.add(sid)
+
+                inserted = s.get("inserted_at", "") or ""
+                models = s.get("models", []) or []
+
+                all_sessions.append({
+                    "id": sid,
+                    "title": s.get("title", "") or "",
+                    "date": inserted[:10] if inserted else "",
+                    "message_count": s.get("message_count", 0) or 0,
+                    "model": models[0] if models else "",
+                })
+
+    # 批量查询状态
+    if all_sessions:
+        conn = get_conn()
+        ids = [s["id"] for s in all_sessions]
+        status_map = get_status_for_sessions(conn, ids)
+        for s in all_sessions:
+            st = status_map.get(s["id"]) or get_or_init_status(conn, s["id"])
+            s["status"] = st["status"] if st else "raw"
+            s["notes"] = st["notes"] if st else ""
+        conn.close()
+
+    return {"sessions": all_sessions, "count": len(all_sessions)}
 
 
 @router.get("/api/deepseek/sessions/{session_id}")
@@ -220,6 +309,7 @@ def deepseek_session_content(session_id: str):
                 "id": session_id,
                 "filename": f.name,
                 "path": rel_path,
+                "abs_path": str(f.resolve()),
                 "content": content,
             }
 
@@ -248,6 +338,17 @@ def deepseek_sessions_by_date(date: str = Query(...)):
             "year": parts[0] if len(parts) > 0 else "",
             "month": parts[1] if len(parts) > 1 else "",
         })
+
+    # 批量查询状态
+    if results:
+        conn = get_conn()
+        ids = [r["id"] for r in results if r["id"]]
+        status_map = get_status_for_sessions(conn, ids)
+        for r in results:
+            if r["id"]:
+                st = status_map.get(r["id"]) or get_or_init_status(conn, r["id"])
+                r["status"] = st["status"] if st else "raw"
+        conn.close()
 
     results.sort(key=lambda x: x["date"], reverse=True)
     return {"sessions": results, "date": date, "count": len(results)}
@@ -448,8 +549,27 @@ def deepseek_stats():
     # 可用年份（从 daily_conversations 提取）
     available_years = sorted(set(k[:4] for k in daily_conversations))
 
+    # 归档统计
+    conn = get_conn()
+    archive_counts = get_status_counts(conn)
+    conn.close()
+    raw = archive_counts.get("raw", 0)
+    archived = archive_counts.get("archived", 0)
+    deleted = archive_counts.get("deleted", 0)
+    deleted_permanent = archive_counts.get("deleted_permanent", 0)
+    total_db = archive_counts.get("total", 0)
+    completion_rate = round(archived / (raw + archived) * 100, 1) if (raw + archived) > 0 else 0
+
     return {
         "total_conversations": total_conversations,
+        "archive_stats": {
+            "total": total_db,
+            "raw": raw,
+            "archived": archived,
+            "deleted": deleted,
+            "deleted_permanent": deleted_permanent,
+            "completion_rate": completion_rate,
+        },
         "total_messages": total_messages,
         "total_user_messages": total_user_messages,
         "time_span_days": days,
@@ -481,6 +601,35 @@ def deepseek_stats():
             for k, v in sorted(model_durations.items(), key=lambda x: x[1]["total_min"] / x[1]["count"], reverse=True)
         ],
     }
+
+
+@router.get("/api/deepseek/stats/topics")
+def deepseek_topic_stats():
+    """读取分类概要 CSV 返回主题分布"""
+    import csv
+    csv_path = DEEPSEEK_ARCHIVE / "category_summary.csv"
+    if not csv_path.exists():
+        return {"parents": [], "total": 0}
+
+    parent_map = {}
+    total = 0
+    with open(csv_path, "r", encoding="utf-8-sig") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            parent = row["parent"]
+            child = row["child"]
+            count = int(row["count"])
+            if parent not in parent_map:
+                parent_map[parent] = {"parent": parent, "children": [], "total": 0}
+            parent_map[parent]["children"].append({"child": child, "count": count})
+            parent_map[parent]["total"] += count
+            total += count
+
+    parents = list(parent_map.values())
+    for p in parents:
+        p["pct"] = round(p["total"] / total * 100) if total > 0 else 0
+
+    return {"parents": parents, "total": total}
 
 
 def _parse_file_metadata(file_path):
@@ -592,6 +741,17 @@ def deepseek_search(q: str = Query(...), mode: str = Query("title")):
                         "month": month_dir.name,
                     })
 
+        # 批量查询状态
+        if results:
+            conn = get_conn()
+            ids = [r["id"] for r in results if r["id"]]
+            status_map = get_status_for_sessions(conn, ids)
+            for r in results:
+                if r["id"]:
+                    st = status_map.get(r["id"]) or get_or_init_status(conn, r["id"])
+                    r["status"] = st["status"] if st else "raw"
+            conn.close()
+
         # 按时间倒序
         results.sort(key=lambda x: x["date"], reverse=True)
         return {"results": results, "query": q, "mode": mode, "count": len(results)}
@@ -633,7 +793,85 @@ def deepseek_search(q: str = Query(...), mode: str = Query("title")):
                         "snippet": "",
                     })
 
+    # 批量查询状态
+    if results:
+        conn = get_conn()
+        ids = [r["id"] for r in results if r["id"]]
+        status_map = get_status_for_sessions(conn, ids)
+        for r in results:
+            if r["id"]:
+                st = status_map.get(r["id"]) or get_or_init_status(conn, r["id"])
+                r["status"] = st["status"] if st else "raw"
+        conn.close()
+
     # 按时间倒序
     results.sort(key=lambda x: x["date"], reverse=True)
 
     return {"results": results, "query": q, "mode": mode, "count": len(results)}
+
+
+# ═══════════════════════════════════════════════
+# DeepSeek 对话状态管理 API
+# ═══════════════════════════════════════════════
+
+
+@router.get("/api/deepseek/sessions/{session_id}/status")
+def deepseek_session_status(session_id: str):
+    """获取单条对话的状态信息（含笔记）"""
+    conn = get_conn()
+    st = get_or_init_status(conn, session_id)
+    conn.close()
+
+    if not st:
+        return JSONResponse({"error": f"Session '{session_id}' not found"}, status_code=404)
+
+    return {
+        "id": st["id"],
+        "status": st["status"],
+        "archived_at": st["archived_at"],
+        "deleted_at": st["deleted_at"],
+        "notes": st["notes"] or "",
+    }
+
+
+@router.patch("/api/deepseek/sessions/{session_id}/status")
+def deepseek_update_status(session_id: str, body: dict = Body(...)):
+    """
+    更新对话状态。
+
+    请求体：
+    {
+        "status": "archived" | "deleted" | "raw",
+        "notes": "可选的知识提炼笔记"
+    }
+    """
+    new_status = body.get("status", "")
+    notes = body.get("notes", "")
+
+    if new_status not in ("raw", "archived", "deleted"):
+        return JSONResponse({"error": f"Invalid status '{new_status}'"}, status_code=400)
+
+    conn = get_conn()
+    st = upsert_status(conn, session_id, new_status, notes)
+    conn.close()
+
+    return {
+        "id": st["id"],
+        "status": st["status"],
+        "archived_at": st["archived_at"],
+        "deleted_at": st["deleted_at"],
+        "notes": st["notes"] or "",
+    }
+
+
+@router.delete("/api/deepseek/sessions/{session_id}/permanent")
+def deepseek_permanent_delete(session_id: str):
+    """
+    永久删除对话（仅标记为 deleted_permanent，不操作原始 .md 文件）。
+    仅在回收站中执行，前端需二次确认。
+    """
+    conn = get_conn()
+    permanent_delete_status(conn, session_id)
+    conn.close()
+
+    return {"ok": True, "id": session_id, "status": "deleted_permanent"}

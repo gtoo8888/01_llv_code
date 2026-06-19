@@ -52,6 +52,7 @@ function selectDsYear(year) {
   empty.textContent = '← 选择一条对话查看详情';
   document.getElementById('main-body').appendChild(empty);
   document.getElementById('main-header').style.display = 'none';
+  hideContentSearch();
 
   // 直接从缓存读取，不再请求
   if (dsStructureCache && dsStructureCache.years && dsStructureCache.years[year]) {
@@ -96,6 +97,7 @@ async function selectDsMonth(year, month) {
   document.getElementById('main-body').appendChild(emptyMsg);
   document.getElementById('main-header').style.display = 'none';
   document.getElementById('copy-btn-wrap').style.display = 'none';
+  hideContentSearch();
 
   try {
     const data = await deepseekGetSessions(year, month);
@@ -176,6 +178,7 @@ function renderDsContent(data) {
 
   const html = renderDsMarkdown(content);
   mainBody.innerHTML = `<div class="ds-content">${html}</div>`;
+  showContentSearch();
 }
 
 function copyDsContent() {
@@ -370,6 +373,7 @@ function renderDsSearchResults(data) {
 function dsClearSearch() {
   document.getElementById('ds-search-input').value = '';
   document.getElementById('ds-search-status').style.display = 'none';
+  hideContentSearch();
 
   // 恢复年月导航
   document.getElementById('ds-year-nav').style.display = 'flex';
@@ -382,5 +386,10 @@ function dsClearSearch() {
     '<div class="empty-main">← 选择一条对话查看详情</div>';
   document.getElementById('main-header').style.display = 'none';
   document.getElementById('copy-btn-wrap').style.display = 'none';
+}
+
+// 页面加载初始化 — DeepSeek 为默认标签
+if (document.querySelector('.tab-btn.active')?.dataset.tab === 'deepseek') {
+  loadDsStructure();
 }
 

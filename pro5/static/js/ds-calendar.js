@@ -43,6 +43,7 @@ function dsSetView(mode) {
       '<div style="padding:20px;color:var(--text-secondary);font-size:13px;text-align:center">← 选择年月查看对话</div>';
     document.getElementById('main-header').style.display = 'none';
     document.getElementById('copy-btn-wrap').style.display = 'none';
+    hideContentSearch();
     document.getElementById('main-body').innerHTML =
       '<div class="empty-main">← 选择一条对话查看详情</div>';
     dsState.year = '';
@@ -302,6 +303,8 @@ async function dsLoadCalDate(dateStr) {
 
 // 缓存统计原始数据，供 JSON 复制使用
 let statsDataCache = null;
+let _statsTotalConversations = 0;
+let _statsTopicData = null;
 
 // 年热力图全局状态
 let _heatmapDailyData = null;
@@ -414,6 +417,7 @@ function switchHeatmapYear(year) {
 function renderStatsDashboard(data) {
   statsDataCache = data;
   const mainBody = document.getElementById('main-body');
+  _statsTotalConversations = data.total_conversations || 0;
 
   const {
     total_conversations: totalConversations,
@@ -680,6 +684,14 @@ function renderStatsDashboard(data) {
         })()}
       </div>
 
+      <!-- 对话主题分布 -->
+      <div class="stats-section" id="topic-dist-section">
+        <div class="stats-section-title">🎯 对话主题分布</div>
+        <div id="topic-dist-content">
+          <div style="text-align:center;padding:20px;color:var(--text-secondary);font-size:13px">加载中...</div>
+        </div>
+      </div>
+
       <div class="stats-footer">📊 数据最后更新: ${maxDate || '-'}</div>
 
       <!-- 复制 JSON 按钮 -->
@@ -694,6 +706,220 @@ function renderStatsDashboard(data) {
 
   // 绘制散点图
   setTimeout(() => drawScatterPlot(data.scatter_data || []), 50);
+
+  // 异步加载主题分布
+  fetch('/api/deepseek/stats/topics')
+    .then(r => r.json())
+    .then(topicData => renderTopicDistribution(topicData))
+    .catch(() => {
+      const el = document.getElementById('topic-dist-content');
+      if (el) el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-secondary);font-size:13px">❌ 加载失败</div>';
+    });
+}
+
+/** 主题分布颜色 — 色相环等距 11 色 */
+const _TOPIC_COLORS = [
+  'hsl(0, 60%, 55%)', 'hsl(33, 60%, 55%)', 'hsl(66, 60%, 55%)',
+  'hsl(99, 60%, 55%)', 'hsl(132, 60%, 55%)', 'hsl(165, 60%, 55%)',
+  'hsl(198, 60%, 55%)', 'hsl(231, 60%, 55%)', 'hsl(264, 60%, 55%)',
+  'hsl(297, 60%, 55%)', 'hsl(330, 60%, 55%)',
+];
+
+/** 渲染主题分布 — 圆环图 + 可折叠列表 */
+function renderTopicDistribution(data) {
+  _statsTopicData = data;
+  const el = document.getElementById('topic-dist-content');
+  if (!el) return;
+
+  if (!data.parents || data.parents.length === 0) {
+    el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-secondary);font-size:13px">暂无分类数据<br><span style="font-size:11px">请先运行分类脚本生成 category_summary.csv</span></div>';
+    return;
+  }
+
+  const totalConv = _statsTotalConversations || data.total || 0;
+  const parents = data.parents.slice().sort(function (a, b) { return b.total - a.total; });
+
+  // ── 左侧圆环图 ──
+  // 先渲染容器，让 DOM 存在后再 init ECharts
+  el.innerHTML = `
+    <div class="topic-dist-flex">
+      <div class="topic-donut-wrap"><div id="topic-donut" style="width:100%;height:100%"></div></div>
+      <div class="topic-list-wrap" id="topic-list"></div>
+    </div>
+  `;
+
+  // ── ECharts 圆环图 ──
+  const chartDom = document.getElementById('topic-donut');
+  if (!chartDom) return;
+  const chart = echarts.init(chartDom);
+
+  // 构建 series data（< 8% 的隐藏标签和引导线）
+  const seriesData = parents.map(function (p, i) {
+    var big = p.pct >= 8;
+    return {
+      value: p.total,
+      name: p.parent,
+      itemStyle: { color: _TOPIC_COLORS[i % _TOPIC_COLORS.length] },
+      label: {
+        show: big,
+        position: 'inside',
+        formatter: p.parent + '\n' + p.pct + '%',
+        color: '#fff',
+        fontSize: 11,
+      },
+      labelLine: { show: false },
+    };
+  });
+
+  chart.setOption({
+    tooltip: { show: false },
+    legend: { show: false },
+    series: [{
+      type: 'pie',
+      radius: ['42%', '68%'],
+      center: ['50%', '50%'],
+      avoidLabelOverlap: false,
+      padAngle: 1,
+      itemStyle: {
+        borderRadius: 3,
+        borderColor: '#fff',
+        borderWidth: 1.5,
+      },
+      label: { show: false },
+      labelLine: { show: false },
+      emphasis: { scale: false, label: { show: false } },
+      data: seriesData,
+    }],
+    graphic: [
+      {
+        type: 'text',
+        left: 'center',
+        top: '42%',
+        style: {
+          text: String(totalConv),
+          textAlign: 'center',
+          fill: '#333',
+          fontSize: 28,
+          fontWeight: 'bold',
+        },
+        z: 100,
+      },
+      {
+        type: 'text',
+        left: 'center',
+        top: '54%',
+        style: {
+          text: '总对话数',
+          textAlign: 'center',
+          fill: '#999',
+          fontSize: 12,
+        },
+        z: 100,
+      },
+    ],
+  });
+
+  // 饼图点击联动右侧列表
+  let _topicSelected = -1;
+  chart.on('click', function (params) {
+    const idx = params.dataIndex;
+    topicHighlightParent(idx);
+    _topicSelected = idx;
+  });
+  // 点击空白区域（无 dataIndex）取消选中
+  chart.getZr().on('click', function () {
+    if (_topicSelected >= 0) {
+      topicClearHighlight();
+      _topicSelected = -1;
+    }
+  });
+
+  // ── 右侧列表 ──
+  const listWrap = document.getElementById('topic-list');
+  if (!listWrap) return;
+
+  let listHtml = '<div class="topic-summary">📊 共 ' + parents.length + ' 个主题，' + totalConv + ' 条对话 <span class="topic-collapse-btn" onclick="topicCollapseAll()">全部收起</span></div>';
+
+  parents.forEach(function (p, i) {
+    const color = _TOPIC_COLORS[i % _TOPIC_COLORS.length];
+    const expanded = i < 3;  // Top 3 默认展开
+
+    listHtml += '<div class="topic-parent-row" data-idx="' + i + '" onclick="topicToggleParent(' + i + ')">';
+    listHtml += '  <span class="topic-dot" style="background:' + color + '"></span>';
+    listHtml += '  <span class="topic-parent-name">' + escHtml(p.parent) + '</span>';
+    listHtml += '  <span class="topic-parent-count">' + p.total + '</span>';
+    listHtml += '  <span class="topic-parent-pct">' + p.pct + '%</span>';
+    listHtml += '  <span class="topic-arrow ' + (expanded ? 'expanded' : '') + '">&#9654;</span>';
+    listHtml += '</div>';
+
+    listHtml += '<div class="topic-children-wrap' + (expanded ? '' : ' collapsed') + '" data-parent="' + i + '">';
+    p.children.forEach(function (c, ci) {
+      const icon = ci === p.children.length - 1 ? '\u2514' : '\u251C';  // └ / ├
+      listHtml += '<div class="topic-child-row">';
+      listHtml += '  <span class="topic-child-icon">' + icon + '</span>';
+      listHtml += '  <span class="topic-child-label">' + escHtml(c.child) + '</span>';
+      listHtml += '  <span class="topic-child-count">' + c.count + '\u6761</span>';  // 条
+      listHtml += '</div>';
+    });
+    listHtml += '</div>';
+  });
+
+  listWrap.innerHTML = listHtml;
+}
+
+/** HTML 转义 */
+function escHtml(str) {
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+/** 展开/折叠父类的子类列表 */
+function topicToggleParent(idx) {
+  var wrap = document.querySelector('.topic-children-wrap[data-parent="' + idx + '"]');
+  if (!wrap) return;
+  var arrow = document.querySelector('.topic-parent-row[data-idx="' + idx + '"] .topic-arrow');
+  var isCollapsed = wrap.classList.contains('collapsed');
+  if (isCollapsed) {
+    wrap.classList.remove('collapsed');
+    if (arrow) arrow.classList.add('expanded');
+  } else {
+    wrap.classList.add('collapsed');
+    if (arrow) arrow.classList.remove('expanded');
+  }
+}
+
+/** 高亮某个父类行并展开其子类 */
+function topicHighlightParent(idx) {
+  // 清除之前的高亮
+  document.querySelectorAll('.topic-parent-row.active').forEach(function (r) { r.classList.remove('active'); });
+  // 高亮目标
+  var row = document.querySelector('.topic-parent-row[data-idx="' + idx + '"]');
+  if (row) {
+    row.classList.add('active');
+    row.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+  // 展开目标子类
+  var wrap = document.querySelector('.topic-children-wrap[data-parent="' + idx + '"]');
+  if (wrap && wrap.classList.contains('collapsed')) {
+    wrap.classList.remove('collapsed');
+    var arrow = row ? row.querySelector('.topic-arrow') : null;
+    if (arrow) arrow.classList.add('expanded');
+  }
+}
+
+/** 清除高亮 */
+function topicClearHighlight() {
+  document.querySelectorAll('.topic-parent-row.active').forEach(function (r) { r.classList.remove('active'); });
+}
+
+/** 全部收起 */
+function topicCollapseAll() {
+  document.querySelectorAll('.topic-children-wrap').forEach(function (w) {
+    w.classList.add('collapsed');
+  });
+  document.querySelectorAll('.topic-arrow').forEach(function (a) {
+    a.classList.remove('expanded');
+  });
+  topicClearHighlight();
 }
 
 
@@ -794,9 +1020,15 @@ function drawScatterPlot(points) {
 function copyStatsAsJson() {
   if (!statsDataCache) return;
 
-  // 去掉原始数据点，只保留聚合统计
+  // 合并主题分布数据
   const cleaned = { ...statsDataCache };
   delete cleaned.scatter_data;
+  if (_statsTopicData) {
+    cleaned.topic_distribution = (_statsTopicData.parents || []).map(function (p) {
+      return { parent: p.parent, total: p.total, pct: p.pct, children: p.children };
+    });
+    cleaned.topic_total = _statsTopicData.total;
+  }
   const json = JSON.stringify(cleaned);
   doCopy(json, '.stats-copy-summary');
 }
@@ -804,7 +1036,14 @@ function copyStatsAsJson() {
 
 function copyStatsFullJson() {
   if (!statsDataCache) return;
-  doCopy(JSON.stringify(statsDataCache), '.stats-copy-full');
+  var full = { ...statsDataCache };
+  if (_statsTopicData) {
+    full.topic_distribution = (_statsTopicData.parents || []).map(function (p) {
+      return { parent: p.parent, total: p.total, pct: p.pct, children: p.children };
+    });
+    full.topic_total = _statsTopicData.total;
+  }
+  doCopy(JSON.stringify(full), '.stats-copy-full');
 }
 
 
