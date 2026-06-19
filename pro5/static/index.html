@@ -4,21 +4,74 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>对话分析</title>
-  <link rel="stylesheet" href="/static/css/style.css">
-  <link rel="stylesheet" href="/static/css/index.css">
+  <link rel="stylesheet" href="/static/css/style.css?v=13">
+  <link rel="stylesheet" href="/static/css/index.css?v=13">
 </head>
 <body>
 
 <div class="layout">
   <!-- 左侧：会话列表 -->
   <aside class="sidebar">
-    <div class="sidebar-header">
-      <span>📊 对话历史</span>
-      <button class="btn btn-ghost" style="padding:4px 10px;font-size:12px" onclick="loadSessions()">🔄</button>
+    <!-- 标签栏 -->
+    <div class="tab-bar">
+      <button class="tab-btn active" data-tab="openclaw" onclick="switchTab('openclaw')">🤖 OpenClaw</button>
+      <button class="tab-btn" data-tab="deepseek" onclick="switchTab('deepseek')">🧠 DeepSeek</button>
+      <button class="tab-btn" data-tab="stats" onclick="switchTab('stats')">📊 统计</button>
     </div>
-    <div class="sidebar-body">
-      <div id="conv-list">
-        <div class="loading" style="padding:20px">加载中</div>
+
+    <!-- OpenClaw 视图 -->
+    <div id="tab-openclaw" class="tab-content">
+      <div class="sidebar-header">
+        <span>📊 对话历史</span>
+        <button class="btn btn-ghost" style="padding:4px 10px;font-size:12px" onclick="loadSessions()">🔄</button>
+      </div>
+      <div class="sidebar-body">
+        <div id="conv-list">
+          <div class="loading" style="padding:20px">加载中</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DeepSeek 视图 -->
+    <div id="tab-deepseek" class="tab-content" style="display:none">
+      <div class="sidebar-header">
+        <span>📚 DeepSeek 知识库</span>
+      </div>
+      <div class="sidebar-body ds-sidebar-body">
+        <!-- 搜索栏 -->
+        <div class="ds-search-bar">
+          <div class="ds-search-input-wrap">
+            <input type="text" id="ds-search-input" placeholder="搜索对话..." onkeydown="dsSearchKeydown(event)" spellcheck="false">
+            <button class="ds-search-btn" onclick="dsSearch()">🔍</button>
+          </div>
+          <div class="ds-search-modes">
+            <button class="ds-mode-btn active" data-mode="title" onclick="dsSetMode('title')">📄 标题搜索</button>
+            <button class="ds-mode-btn ds-mode-full" data-mode="full" onclick="dsSetMode('full')">📖 全文搜索</button>
+          </div>
+          <div id="ds-search-status" class="ds-search-status" style="display:none"></div>
+        </div>
+        <!-- 浏览模式切换 -->
+        <div class="ds-view-toggle">
+          <button class="ds-view-btn active" data-view="browse" onclick="dsSetView('browse')">📂 按年月</button>
+          <button class="ds-view-btn" data-view="date" onclick="dsSetView('date')">📅 按日期</button>
+        </div>
+        <!-- 日期选择器（自定义日历） -->
+        <div id="ds-date-picker" class="ds-date-picker" style="display:none">
+          <div class="ds-cal-header">
+            <button class="ds-cal-nav" onclick="dsCalSwitchMonth(-1)">◀</button>
+            <span id="ds-cal-title" class="ds-cal-title"></span>
+            <button class="ds-cal-nav" onclick="dsCalSwitchMonth(1)">▶</button>
+          </div>
+          <div id="ds-cal-grid" class="ds-cal-grid"></div>
+        </div>
+        <!-- 年份导航 -->
+        <div id="ds-year-nav" class="ds-nav-row"></div>
+        <!-- 月份导航 -->
+        <div id="ds-month-nav" class="ds-nav-row" style="display:none"></div>
+        <!-- 会话列表 / 搜索结果 -->
+        <div id="ds-session-list" class="ds-session-list">
+          <div style="padding:20px;color:var(--text-secondary);font-size:13px;text-align:center">← 选择年月查看对话</div>
+        </div>
       </div>
     </div>
   </aside>
@@ -29,6 +82,9 @@
       <span>会话: <strong id="h-key"></strong></span>
       <span>渠道: <strong id="h-channel"></strong></span>
       <span>消息: <strong id="h-count"></strong></span>
+      <span id="copy-btn-wrap" style="margin-left:auto;display:none">
+        <button id="copy-btn" class="btn btn-ghost" style="padding:4px 10px;font-size:12px" onclick="copyDsContent()">📋 复制</button>
+      </span>
     </div>
     <div id="main-body" class="main-body">
       <div class="empty-main">← 点击左侧会话查看详情</div>
@@ -36,7 +92,9 @@
   </main>
 </div>
 
-<script src="/static/js/api.js"></script>
-<script src="/static/js/index.js"></script>
+<script src="/static/js/api.js?v=14"></script>
+<script src="/static/js/core.js?v=14"></script>
+<script src="/static/js/ds-navigation.js?v=14"></script>
+<script src="/static/js/ds-calendar.js?v=14"></script>
 </body>
 </html>

@@ -18,3 +18,35 @@ async function getSessions() {
 async function getSessionMessages(sessionKey) {
   return apiGet(`/sessions/${encodeURIComponent(sessionKey)}/messages`);
 }
+
+// ═══════════════════════════════════════════════
+// DeepSeek API
+// ═══════════════════════════════════════════════
+
+async function deepseekGetStructure() {
+  return apiGet('/deepseek/structure');
+}
+
+async function deepseekGetSessions(year, month) {
+  return apiGet(`/deepseek/sessions?year=${encodeURIComponent(year)}&month=${encodeURIComponent(month)}`);
+}
+
+async function deepseekGetContent(sessionId) {
+  return apiGet(`/deepseek/sessions/${encodeURIComponent(sessionId)}`);
+}
+
+async function deepseekSearch(q, mode) {
+  return apiGet(`/deepseek/search?q=${encodeURIComponent(q)}&mode=${encodeURIComponent(mode)}`);
+}
+
+async function deepseekGetSessionsByDate(date) {
+  return apiGet(`/deepseek/sessions-by-date?date=${encodeURIComponent(date)}`);
+}
+
+async function deepseekGetDates(year, month) {
+  return apiGet(`/deepseek/dates?year=${encodeURIComponent(year)}&month=${encodeURIComponent(month)}`);
+}
+
+async function deepseekGetStats() {
+  return apiGet('/deepseek/stats');
+}

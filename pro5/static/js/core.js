@@ -27,18 +27,29 @@ function escapeHtml(str) {
 
 // 点击会话
 async function selectSession(sessionKey) {
-  document.querySelectorAll('.conv-item').forEach(el => {
-    el.classList.toggle('active', el.dataset.key === sessionKey);
-  });
+  // 局部更新选中样式
+  const prevActive = document.querySelector('.conv-item.active');
+  if (prevActive) prevActive.classList.remove('active');
+  const newActive = document.querySelector(`.conv-item[data-key="${sessionKey.replace(/"/g, '&quot;')}"]`);
+  if (newActive) newActive.classList.add('active');
 
   const mainBody = document.getElementById('main-body');
-  mainBody.innerHTML = '<div class="loading" style="padding:40px">加载中</div>';
+  mainBody.textContent = '';
+  const loadingEl = document.createElement('div');
+  loadingEl.className = 'loading';
+  loadingEl.style.cssText = 'padding:40px';
+  loadingEl.textContent = '加载中';
+  mainBody.appendChild(loadingEl);
 
   try {
     const data = await getSessionMessages(sessionKey);
     renderConversation(data);
   } catch (e) {
-    mainBody.innerHTML = `<div class="empty-main">加载失败：${e.message}</div>`;
+    mainBody.textContent = '';
+    const err = document.createElement('div');
+    err.className = 'empty-main';
+    err.textContent = '加载失败：' + e.message;
+    mainBody.appendChild(err);
   }
 }
 
@@ -50,6 +61,7 @@ function renderConversation(data) {
   document.getElementById('h-channel').textContent = channel;
   document.getElementById('h-count').textContent = messages.length;
   document.getElementById('main-header').style.display = 'flex';
+  document.getElementById('copy-btn-wrap').style.display = 'none';
 
   const mainBody = document.getElementById('main-body');
 
@@ -118,21 +130,6 @@ function buildMessageHtml(msg) {
   `;
 }
 
-function toggleExpand(btn) {
-  const contentEl = btn.previousElementSibling;
-  const isExpanded = contentEl.classList.contains('expanded');
-  if (isExpanded) {
-    const raw = contentEl.dataset.raw;
-    const short = raw.slice(0, 400) + '\n...';
-    contentEl.textContent = short;
-    contentEl.classList.remove('expanded');
-    btn.textContent = '展开 ▼';
-  } else {
-    contentEl.textContent = contentEl.dataset.raw;
-    contentEl.classList.add('expanded');
-    btn.textContent = '收起 ▲';
-  }
-}
 
 function renderToolCalls(toolCalls) {
   if (!toolCalls || toolCalls.length === 0) return '';
@@ -199,5 +196,46 @@ async function loadSessions() {
   }
 }
 
-// 初始化
-loadSessions();
+// ============================================================
+// Tab 切换
+// ============================================================
+
+// DeepSeek 当前状态
+const dsState = { year: '', month: '', sessions: [], sessionId: '' };
+
+// DeepSeek 当前显示的原始内容（供复制用）
+let dsRawContent = '';
+
+// ============================================================
+// API 缓存
+// ============================================================
+
+let dsStructureCache = null;       // deepseekGetStructure() 缓存
+const dsDatesCache = new Map();    // deepseekGetDates(year,month) 缓存，key="YYYY-MM"，存 Promise
+
+function clearDsCache() {
+  dsStructureCache = null;
+  dsDatesCache.clear();
+  if (document.getElementById('ds-year-nav')) loadDsStructure();
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+
+  if (tab === 'stats') {
+    document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+    document.getElementById('main-header').style.display = 'none';
+    document.getElementById('copy-btn-wrap').style.display = 'none';
+    document.getElementById('main-body').innerHTML = '<div class="loading" style="padding:40px;text-align:center">加载统计数据...</div>';
+    deepseekGetStats().then(data => renderStatsDashboard(data)).catch(e => {
+      document.getElementById('main-body').innerHTML = `<div class="empty-main">加载失败：${e.message}</div>`;
+    });
+    return;
+  }
+
+  document.querySelectorAll('.tab-content').forEach(c => c.style.display = c.id === `tab-${tab}` ? 'flex' : 'none');
+
+  if (tab === 'deepseek') {
+    loadDsStructure();
+  }
+}
