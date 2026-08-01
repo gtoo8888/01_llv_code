@@ -224,3 +224,8 @@ pro5/
 | `02_SCRIPTS_USAGE.md` | 离线脚本使用指南（含所有 scripts/ 工具） |
 | `03_DEVELOPMENT_HISTORY.md` | 开发记录、分类方案 |
 | `04_DEVELOPMENT_ISSUES.md` | 开发问题复盘（含 Bug 修复、教训总结） |
+
+
+# TODO
+1. 对话管理里面对于预览的文章没有复制按钮。需要有
+2. 删除要是直接硬删除
