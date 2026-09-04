@@ -1,0 +1,142 @@
+{
+  "goal": "<任务方向一句话；模糊/缺省即默认「打磨/优化该项目」（可验收由首轮评估者细化）>",
+  "workdir": "<打磨的项目目录：已有项目或空目录；夜莺在其下建 .nightingale/ 骨架>",
+  "expected_duration": "<默认：无限运行，直到人工喊停>",
+  "im": {
+    "enabled": true,
+    "interval_sec": 900,
+    "channels": [
+      {
+        "name": "feishu",
+        "enabled": false,
+        "webhook_url": null,
+        "message_type": "text"
+      },
+      {
+        "name": "dingtalk",
+        "enabled": false,
+        "webhook_url": null,
+        "message_type": "text"
+      },
+      {
+        "name": "wecom",
+        "enabled": false,
+        "webhook_url": null,
+        "message_type": "text"
+      }
+    ]
+  },
+  "tools": {
+    "items": [
+      {
+        "name": "git",
+        "type": "command",
+        "check": "git --version",
+        "required": true,
+        "note": "版本控制，commit 审计与每日复盘的前提"
+      },
+      {
+        "name": "python3",
+        "type": "command",
+        "check": "python3 --version",
+        "required": true,
+        "note": "Python 运行时，pip 和 unittest 的前提"
+      },
+      {
+        "name": "pip",
+        "type": "command",
+        "check": "pip --version",
+        "required": true,
+        "note": "Python 包管理"
+      },
+      {
+        "name": "readtags",
+        "type": "command",
+        "check": "readtags --version",
+        "required": false,
+        "note": "基于 tags 索引的符号查询"
+      },
+      {
+        "name": "ctags",
+        "type": "command",
+        "check": "ctags --version",
+        "required": false,
+        "note": "生成 tags 索引文件"
+      },
+      {
+        "name": "cscope",
+        "type": "command",
+        "check": "cscope --version",
+        "required": false,
+        "note": "C 代码交叉引用查询"
+      },
+      {
+        "name": "ripgrep",
+        "type": "command",
+        "check": "rg --version",
+        "required": false,
+        "note": "快速全文搜索"
+      },
+      {
+        "name": "curl",
+        "type": "command",
+        "check": "curl --version",
+        "required": false,
+        "note": "网络请求与下载"
+      },
+      {
+        "name": "npm",
+        "type": "command",
+        "check": "npm --version",
+        "required": false,
+        "note": "Node 包管理"
+      },
+      {
+        "name": "unittest",
+        "type": "command",
+        "check": "python3 -m unittest --help",
+        "required": false,
+        "note": "Python 单元测试框架（标准库）"
+      },
+      {
+        "name": "doxygen",
+        "type": "command",
+        "check": "doxygen --version",
+        "required": false,
+        "note": "从注释生成文档"
+      },
+      {
+        "name": "codegraph",
+        "type": "mcp",
+        "check": "<MCP 健康检查调用>",
+        "required": false,
+        "note": "代码图查询服务"
+      },
+      {
+        "name": "understand-anything",
+        "type": "skill",
+        "check": "<skill 目录与入口检查>",
+        "required": false,
+        "note": "深度代码理解技能"
+      }
+    ]
+  },
+  "schedule": {
+    "night_start": "21:30",
+    "night_end": "08:30",
+    "weekend_start": "Friday 21:30",
+    "weekend_end": "Monday 08:30",
+    "conservative_max_pairs": 1,
+    "aggressive_max_pairs": 5,
+    "timeouts": {
+      "agent_sec": 1800,
+      "pair_sec": 3600,
+      "workflow_sec": 5400
+    },
+    "timezone": null
+  },
+  "danger_boundary": {
+    "delete": "ask_user",
+    "overwrite": "ask_user"
+  }
+}

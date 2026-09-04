@@ -1,0 +1,14 @@
+{
+  "status": "idle",
+  "mode": "conservative",
+  "current_task": null,
+  "active_pairs": null,
+  "last_heartbeat": "<ISO 时间>",
+  "last_heartbeat_delta_sec": null,
+  "recent_completion": null,
+  "error_count": 0,
+  "watchdog_enabled": false,
+  "loop_started_at": "<ISO 时间>",
+  "im_last_sent": null,
+  "im_last_status": "skipped"
+}

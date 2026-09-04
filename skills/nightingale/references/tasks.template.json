@@ -1,0 +1,12 @@
+{
+  "tasks": [
+    {
+      "task_id": "NIGHT-001",
+      "goal": "<用户目标一句话 + 可验收结果>",
+      "status": "pending",
+      "created_at": "<ISO 时间>",
+      "iterations": [],
+      "result": null
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "checked_at": "<ISO 时间>",
+  "results": [
+    {
+      "name": "python3",
+      "status": "ok",
+      "note": "python3 --version 正常"
+    },
+    {
+      "name": "doxygen",
+      "status": "fail",
+      "note": "command not found: doxygen"
+    },
+    {
+      "name": "codegraph",
+      "status": "skipped",
+      "note": "MCP 未配置或本轮不检测"
+    },
+    {
+      "name": "im_feishu",
+      "status": "ok",
+      "note": "[测试] 消息发送成功"
+    },
+    {
+      "name": "im_dingtalk",
+      "status": "skipped",
+      "note": "未启用"
+    }
+  ],
+  "critical_ok": true
+}

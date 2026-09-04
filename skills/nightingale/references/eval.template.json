@@ -1,0 +1,18 @@
+{
+  "task_id": "NIGHT-001",
+  "round": 1,
+  "verdict": "continue",
+  "summary": "<一句话描述当前状态>",
+  "actions": [
+    {
+      "priority": 1,
+      "task": "<做什么>",
+      "reason": "<为什么>"
+    },
+    {
+      "priority": 2,
+      "task": "<做什么>",
+      "reason": "<为什么>"
+    }
+  ]
+}
