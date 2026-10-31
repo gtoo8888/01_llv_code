@@ -24,6 +24,8 @@ AI 生成代码项目仓库。由 OpenClaw 共同维护。
 ## 通用架构框架
 
 > ⚠️ **AI 开发新项目时，必须先阅读 `agent_doc/` 下的全部文档，再开始编码。**
+>
+> ⚠️ **AI 不得主动执行任何 git 写操作（add / commit / push / reset / checkout / stash）**，只读命令可用。原因与边界见 [DEVELOPMENT.md 第 0 条](./agent_doc/DEVELOPMENT.md)。
 
 `agent_doc/` 目录下沉淀了适用于轻量级 Web 工具开发的通用架构规范，供 AI 开发新项目时直接参考。
 
