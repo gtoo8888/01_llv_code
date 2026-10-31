@@ -1,0 +1,75 @@
+{
+  "research_date": "2026-10-23",
+  "note": "全市场 Au99.99 实物黄金 ETF 及其场外份额（7 只 ETF / 18 只份额）。代码经天天基金代码库核实。",
+  "funds": [
+    {
+      "company": "华安基金",
+      "company_en": "huaan",
+      "etf": {"code": "518880", "name": "黄金ETF华安", "exchange": "SH"},
+      "feeder": [
+        {"code": "000216", "class": "A", "name": "华安黄金ETF联接A"},
+        {"code": "000217", "class": "C", "name": "华安黄金ETF联接C"},
+        {"code": "022653", "class": "I", "name": "华安黄金ETF联接I"}
+      ]
+    },
+    {
+      "company": "博时基金",
+      "company_en": "bosera",
+      "etf": {"code": "159937", "name": "黄金ETF博时", "exchange": "SZ"},
+      "feeder": [
+        {"code": "002610", "class": "A", "name": "博时黄金ETF联接A"},
+        {"code": "002611", "class": "C", "name": "博时黄金ETF联接C"},
+        {"code": "021499", "class": "E", "name": "博时黄金ETF联接E"},
+        {"code": "000929", "class": "D", "name": "博时黄金D"},
+        {"code": "000930", "class": "I", "name": "博时黄金I"}
+      ]
+    },
+    {
+      "company": "国泰基金",
+      "company_en": "guotai",
+      "etf": {"code": "518800", "name": "黄金ETF国泰", "exchange": "SH"},
+      "feeder": [
+        {"code": "000218", "class": "A", "name": "国泰黄金ETF联接A"},
+        {"code": "004253", "class": "C", "name": "国泰黄金ETF联接C"},
+        {"code": "022502", "class": "E", "name": "国泰黄金ETF联接E"}
+      ]
+    },
+    {
+      "company": "易方达基金",
+      "company_en": "efunds",
+      "etf": {"code": "159934", "name": "黄金ETF易方达", "exchange": "SZ"},
+      "feeder": [
+        {"code": "000307", "class": "A", "name": "易方达黄金ETF联接A"},
+        {"code": "002963", "class": "C", "name": "易方达黄金ETF联接C"}
+      ]
+    },
+    {
+      "company": "工银瑞信基金",
+      "company_en": "icbcubs",
+      "etf": {"code": "518660", "name": "黄金ETF工银", "exchange": "SH"},
+      "feeder": [
+        {"code": "008142", "class": "A", "name": "工银黄金ETF联接A"},
+        {"code": "008143", "class": "C", "name": "工银黄金ETF联接C"},
+        {"code": "020341", "class": "E", "name": "工银黄金ETF联接E"}
+      ]
+    },
+    {
+      "company": "华夏基金",
+      "company_en": "chinaamc",
+      "etf": {"code": "518850", "name": "黄金ETF华夏", "exchange": "SH"},
+      "feeder": [
+        {"code": "008701", "class": "A", "name": "华夏黄金ETF联接A"},
+        {"code": "008702", "class": "C", "name": "华夏黄金ETF联接C"}
+      ]
+    },
+    {
+      "company": "前海开源基金",
+      "company_en": "qhky",
+      "etf": {"code": "159812", "name": "黄金ETF前海开源", "exchange": "SZ"},
+      "feeder": [
+        {"code": "009198", "class": "A", "name": "前海开源黄金ETF联接A"},
+        {"code": "021740", "class": "C", "name": "前海开源黄金ETF联接C"}
+      ]
+    }
+  ]
+}
