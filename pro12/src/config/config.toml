@@ -1,0 +1,87 @@
+# android_transfer.py 配置
+#
+# 原则：不常改的固化在这里；需要反复调参的（如分片数）仍用命令行传。
+# 读不到本文件或缺少必需键时，程序直接崩溃，不做任何兜底。
+
+[transfer]
+# 并发 pull 路数。实测 1→2 路是从 41.4 提到 44.6 MiB/s，2→4 只多 0.9%。
+workers       = 2
+
+# 手机端暂存目录。ext4，绕开 /sdcard 的 FUSE 写惩罚。
+remote_tmp    = "/data/local/tmp/xfer"
+
+# 单条 adb 命令超时（秒）。
+adb_timeout_s = 1800
+
+# 允许手机上缓存多少 MiB 的分片。分片大小与在飞片数都从这里推导：
+#   分片目标 = 本值 / (workers × 2)
+#   在飞片数 = 本值 / 实际分片大小（至少 workers + 2）
+# 手机可用空间小于本值时直接报错，不做降级。
+cache_budget_mib = 4096
+
+# 首片大小（MiB）。首片打包耗时是唯一暴露在关键路径上的成本，
+# 所以刻意做小让第一次 pull 尽快启动；其余各片按正常目标切。
+# 首片用「不超预算的最大文件」填充：体积卡在预算内，同时文件数少、
+# 打包快。用碎片文件填会让 64MiB 变成几百个文件，每文件开销反而更慢。
+first_shard_mib = 64
+
+# 分片大小上下限（MiB），自动推导结果会被夹在这个区间内。
+shard_min_mib = 64
+shard_max_mib = 1536
+
+# 分片数下限。取 workers 的 4 倍，保证打包被传输完全掩盖、每路都有队列余量。
+min_shards    = 8
+
+# 数据量下限（MiB）。低于此值走这套流水线不划算，直接报错让你用 adb pull。
+min_total_mib = 100
+
+# 是否做 tar 头校验（文件数 + 逐文件字节，约 0.03s/460MB，建议开）。
+verify_tar    = true
+
+# 是否保留手机端分片（调试用）。开了就不删，手机空间会持续增长。
+keep_remote   = false
+
+# 运行时目录（相对本脚本所在目录）。下面固定分三个子目录：
+#   state/    预处理状态，prepare.py 写、android_transfer.py 读，删了重跑即可
+#   log/      每次运行一个 .log
+#   metrics/  prepare.csv / transfer.csv，跨运行累积，唯一不可重建的东西
+# 只配这一个根：三个子目录的搬动永远是同步的，分开配只会配出半半拉拉的状态。
+runtime_dir   = "runtime"
+
+# 不传参数时的默认值。
+default_dataset = "weixin"
+default_dst     = "./recv"
+
+
+# ── 速率基准（用于计算利用率）────────────────────────────
+# 两个值放在一起看：
+#   bus_ceiling_mibs  只对这台机器/这条线有效，换机器要重测
+#   theoretical_mibs  物理上限，任何机器都一样，可跨机器对比
+#
+# 本机 USB 2.0 链路（high-speed 480Mbps），实测：
+#   单流 pull 41.4 MiB/s，2 流聚合 44.6，4 流 45.0 → 取 45 为实测聚合上限
+# 理论换算：480Mbps ÷ 8 = 60 MiB/s，经 8b/10b 编码 ÷1.25 → 48 MiB/s
+
+[baseline]
+bus_ceiling_mibs = 45
+theoretical_mibs = 48
+
+
+# ── 数据集 ──────────────────────────────────────────────
+# expect_files 只用于自检：扫描结果对不上时提示"数据集已变化，历史跑分不可比"。
+
+[datasets.weixin]
+src          = "/storage/emulated/0/Pictures/WeiXin"
+expect_files = 766
+
+[datasets.camera]
+src          = "/storage/emulated/0/DCIM/Camera"
+expect_files = 7518
+
+[datasets.screenshots]
+src          = "/storage/emulated/0/DCIM/Screenshots"
+expect_files = 2568
+
+[datasets.pic_screenshots]
+src          = "/storage/emulated/0/Pictures/Screenshots"
+expect_files = 5695
