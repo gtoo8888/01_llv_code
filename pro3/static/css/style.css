@@ -522,3 +522,55 @@ footer {
     font-size: 0.8rem;
     color: #7f8c8d;
 }
+
+.net-speed-cap {
+    float: right;
+    font-size: 0.75rem;
+    color: #7f8c8d;
+}
+
+/* 链路明细 */
+.net-links {
+    grid-column: 1 / -1;
+}
+
+.net-links .network-header {
+    margin-bottom: 8px;
+}
+
+.net-link-row {
+    display: grid;
+    grid-template-columns: 1fr auto auto auto;
+    align-items: center;
+    gap: 10px;
+    padding: 5px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 0.82rem;
+}
+
+.net-link-label {
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.net-link-peer {
+    font-size: 0.72rem;
+    color: #7f8c8d;
+    font-family: monospace;
+    white-space: nowrap;
+}
+
+.net-link-rate {
+    font-family: monospace;
+    white-space: nowrap;
+}
+
+.net-link-rate.up {
+    color: #2ecc71;
+}
+
+.net-link-rate.down {
+    color: #3498db;
+}

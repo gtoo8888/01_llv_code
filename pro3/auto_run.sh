@@ -1,7 +1,7 @@
 #!/bin/zsh
 
 # 项目路径
-PROJECT_DIR="/data_sdb/openclaw/02_llv_generated/01_llv_code/pro3"
+PROJECT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PID_FILE="$PROJECT_DIR/app.pid"
 LOG_FILE="$PROJECT_DIR/app.log"
 
